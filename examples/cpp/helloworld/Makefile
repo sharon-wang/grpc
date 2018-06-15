@@ -36,6 +36,9 @@ PROTOS_PATH = ../../protos
 
 vpath %.proto $(PROTOS_PATH)
 
+LDFLAGS += -L../../../../omr/jitbuilder/release\
+           -ljitbuilder
+
 all: system-check greeter_client greeter_server greeter_async_client greeter_async_client2 greeter_async_server
 
 greeter_client: helloworld.pb.o helloworld.grpc.pb.o greeter_client.o

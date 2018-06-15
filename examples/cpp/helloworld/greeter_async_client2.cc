@@ -44,7 +44,7 @@ class GreeterClient {
     void SayHello(const std::string& user) {
         // Data we are sending to the server.
         HelloRequest request;
-        request.set_name(user);
+        request.set_somename(user);
 
         // Call object to store rpc data
         AsyncClientCall* call = new AsyncClientCall;
@@ -82,7 +82,7 @@ class GreeterClient {
             GPR_ASSERT(ok);
 
             if (call->status.ok())
-                std::cout << "Greeter received: " << call->reply.message() << std::endl;
+                std::cout << "Greeter received: " << call->reply.greetings() << std::endl;
             else
                 std::cout << "RPC failed" << std::endl;
 

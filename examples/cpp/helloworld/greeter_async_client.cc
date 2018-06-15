@@ -44,7 +44,7 @@ class GreeterClient {
   std::string SayHello(const std::string& user) {
     // Data we are sending to the server.
     HelloRequest request;
-    request.set_name(user);
+    request.set_somename(user);
 
     // Container for the data we expect from the server.
     HelloReply reply;
@@ -90,7 +90,7 @@ class GreeterClient {
 
     // Act upon the status of the actual RPC.
     if (status.ok()) {
-      return reply.message();
+      return reply.greetings();
     } else {
       return "RPC failed";
     }

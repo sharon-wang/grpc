@@ -19,7 +19,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
-
+#include "../../../../omr/jitbuilder/release/include/Jit.hpp"
 #include <grpcpp/grpcpp.h>
 
 #ifdef BAZEL_BUILD
@@ -44,7 +44,20 @@ class GreeterServiceImpl final : public Greeter::Service {
     std::string prefix("Hello ");
     reply->set_greetings(prefix + request->somename());
 
+    bool initialized = initializeJit();
+    if (!initialized)
+    {
+      std::cerr << "FAIL: could not initialize JIT\n";
+      exit(-1);
+    }
+    else
+    {
+      std::cout << ">>> JIT INITIALIZED" << '\n';
+    }
+
     std::cout << request->testfile(); // Prints "file" received from client
+
+    shutdownJit();
 
     return Status::OK;
   }
