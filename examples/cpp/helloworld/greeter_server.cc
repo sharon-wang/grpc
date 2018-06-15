@@ -40,14 +40,27 @@ using helloworld::Greeter;
 class GreeterServiceImpl final : public Greeter::Service {
   Status SayHello(ServerContext* context, const HelloRequest* request,
                   HelloReply* reply) override {
+    std::cout << "I am the server. Printing request message..." << '\n';
     std::string prefix("Hello ");
-    reply->set_message(prefix + request->name());
+    reply->set_greetings(prefix + request->somename());
+
+    std::cout << request->testfile(); // Prints "file" received from client
+
+    return Status::OK;
+  }
+
+  Status SayHelloAgain(ServerContext* context, const HelloRequest* request,
+                  HelloReply* reply) override {
+    std::string prefix("Hello Again and Again ");
+    reply->set_luckynumber(951268);
+    reply->set_greetings(prefix + request->somename());
+
     return Status::OK;
   }
 };
 
 void RunServer() {
-  std::string server_address("0.0.0.0:50051");
+  std::string server_address("0.0.0.0:50053");
   GreeterServiceImpl service;
 
   ServerBuilder builder;

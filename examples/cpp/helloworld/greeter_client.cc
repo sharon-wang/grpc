@@ -17,8 +17,10 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
+#include <stdlib.h>
 
 #include <grpcpp/grpcpp.h>
 
@@ -45,7 +47,30 @@ class GreeterClient {
   std::string SayHello(const std::string& user) {
     // Data we are sending to the server.
     HelloRequest request;
-    request.set_name(user);
+    request.set_somename(user);
+
+    // ***********************************************************************
+    // Read && store file to send to server
+    std::string fileString;
+    // ifstream myFile();
+    std::ifstream _file("simple.out");
+    std::string line;
+    std::cout << "Reading simple.out..." << '\n';
+    if(_file.is_open())
+       {
+        std::cout << "simple.out openned." << '\n';
+        while(getline(_file,line))
+           {
+           fileString += line + '\n';
+           }
+        }
+    else
+       {
+        std::cerr << "Error while trying to open simple.out." << '\n';
+       }
+
+    request.set_testfile(fileString);
+    // ***********************************************************************
 
     // Container for the data we expect from the server.
     HelloReply reply;
@@ -59,7 +84,35 @@ class GreeterClient {
 
     // Act upon its status.
     if (status.ok()) {
-      return reply.message();
+      return reply.greetings();
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return "RPC failed";
+    }
+  }
+
+  std::string SayHelloAgain(const std::string& user) {
+    // Data we are sending to the server.
+    HelloRequest request;
+    request.set_somename(user);
+
+    // Container for the data we expect from the server.
+    HelloReply reply;
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+
+    // The actual RPC.
+    Status status = stub_->SayHelloAgain(&context, request, &reply);
+
+    // Act upon its status.
+    if (status.ok()) {
+      char numstr[21]; // enough to hold all numbers up to 64-bits
+      sprintf(numstr, "%d", reply.luckynumber());
+      std::string toReturn = reply.greetings() + ". Lucky number: " + numstr;
+      return toReturn;
     } else {
       std::cout << status.error_code() << ": " << status.error_message()
                 << std::endl;
@@ -77,10 +130,13 @@ int main(int argc, char** argv) {
   // localhost at port 50051). We indicate that the channel isn't authenticated
   // (use of InsecureChannelCredentials()).
   GreeterClient greeter(grpc::CreateChannel(
-      "localhost:50051", grpc::InsecureChannelCredentials()));
+      "localhost:50053", grpc::InsecureChannelCredentials()));
   std::string user("world");
   std::string reply = greeter.SayHello(user);
   std::cout << "Greeter received: " << reply << std::endl;
+
+  std::string reply2 = greeter.SayHelloAgain(user);
+  std::cout << "Another Greeter received: " << reply2 << std::endl;
 
   return 0;
 }
