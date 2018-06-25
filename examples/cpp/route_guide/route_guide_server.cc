@@ -82,12 +82,15 @@ std::string GetFeatureName(const Point& point,
   return "";
 }
 
+// RouteGuideImpl class implements RouteGuide::Service Interface
+// If we want an Asynchronous Server we would need to implement RouteGuide::AsyncService
 class RouteGuideImpl final : public RouteGuide::Service {
  public:
   explicit RouteGuideImpl(const std::string& db) {
     routeguide::ParseDb(db, &feature_list_);
   }
 
+  // Need to make sure it is thread safe!!
   Status GetFeature(ServerContext* context, const Point* point,
                     Feature* feature) override {
     feature->set_name(GetFeatureName(*point, feature_list_));
@@ -95,6 +98,9 @@ class RouteGuideImpl final : public RouteGuide::Service {
     return Status::OK;
   }
 
+  // A server-to-client streaming RPC. The server streams (Feature) where the
+  // client reads a sequence of messages from the server.
+  // Rectangle comes from a client request. 
   Status ListFeatures(ServerContext* context,
                       const routeguide::Rectangle* rectangle,
                       ServerWriter<Feature>* writer) override {

@@ -19,7 +19,13 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include "../../../../omr/jitbuilder/release/include/Jit.hpp"
+
+#include "Jit.hpp"
+#include "ilgen/TypeDictionary.hpp"
+#include "ilgen/JitBuilderRecorderTextFile.hpp"
+#include "ilgen/JitBuilderReplayTextFile.hpp"
+#include "ilgen/MethodBuilderReplay.hpp"
+
 #include <grpcpp/grpcpp.h>
 
 #ifdef BAZEL_BUILD
@@ -56,6 +62,25 @@ class GreeterServiceImpl final : public Greeter::Service {
     }
 
     std::cout << request->testfile(); // Prints "file" received from client
+
+    TR::JitBuilderReplayTextFile replay(request->testfile());
+    TR::JitBuilderRecorderTextFile recorder(NULL, "simple2.out");
+
+    TR::TypeDictionary types;
+    uint8_t *entry = 0;
+
+    std::cout << "Step 1: verify output file\n";
+    TR::MethodBuilderReplay mb(&types, &replay, &recorder); // Process Constructor
+    int32_t rc = compileMethodBuilder(&mb, &entry); // Process buildIL
+
+    typedef int32_t (SimpleMethodFunction)(int32_t);
+    SimpleMethodFunction *increment = (SimpleMethodFunction *) entry;
+
+    int32_t v;
+    v=0; std::cout << "increment(" << v << ") == " << increment(v) << "\n";
+    v=1; std::cout << "increment(" << v << ") == " << increment(v) << "\n";
+    v=10; std::cout << "increment(" << v << ") == " << increment(v) << "\n";
+    v=-15; std::cout << "increment(" << v << ") == " << increment(v) << "\n";
 
     shutdownJit();
 

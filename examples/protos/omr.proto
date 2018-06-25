@@ -1,0 +1,30 @@
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.omr";
+option java_outer_classname = "OMRProto";
+option objc_class_prefix = "RTG";
+
+package omr;
+
+service OMRSaveReplay {
+
+   // A simple RPC: 1 client request and 1 server response
+   //
+   rpc SendOutFile(FileString) returns (ExecBytes) {}
+
+   rpc SendOutFiles(stream FileString) returns (stream ExecBytes) {}
+}
+
+message FileString {
+
+   string file = 1;
+   int32 version = 2;
+}
+
+message ExecBytes {
+
+   bytes byteStream = 1;
+   int32 size = 2;
+}

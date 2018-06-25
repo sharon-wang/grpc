@@ -1,0 +1,26 @@
+"4 [JBIL]" 0 0 0 
+Def S3 "16 [NewMethodBuilder]" 
+B2 S3 B2 
+Def S4 "16 [DefineLineString]" 
+B2 S4 "3 [126]" 
+Def S5 "10 [DefineFile]" 
+B2 S5 "14 [src/Simple.cpp]" 
+Def S6 "10 [DefineName]" 
+B2 S6 "9 [increment]" 
+Def S8 "13 [PrimitiveType]" 
+B2 S8 T7 3 
+Def S9 "15 [DefineParameter]" 
+B2 S9 T7 "5 [value]" 
+Def S10 "16 [DefineReturnType]" 
+B2 S10 T7 
+Def S11 "15 [DoneConstructor]" 
+B2 S11 "4 [Done]" 
+Def S13 "4 [Load]" 
+B2 S13 V12 "5 [value]" 
+Def S15 "10 [ConstInt32]" 
+B2 S15 V14 1 
+Def S17 "3 [Add]" 
+B2 S17 V16 V12 V14 
+Def S18 "11 [ReturnValue]" 
+B2 S18 V16 
+ID1 "4 [Done]" 
