@@ -27,12 +27,18 @@ LDFLAGS += -L../../../../omr/jitbuilder/release\
 
 CXXFLAGS += -I../../../../omr/jitbuilder/release/include/compiler -I../../../../omr/jitbuilder/release/include
 
-all: system-check omr_client omr_server
+all: system-check omr_client omr_server omr_client_async omr_server_async
 
 omr_client: omr.pb.o omr.grpc.pb.o omr_client.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 omr_server: omr.pb.o omr.grpc.pb.o omr_server.o
+	$(CXX) $^ $(LDFLAGS) -o $@
+
+omr_client_async: omr.pb.o omr.grpc.pb.o omr_client_async.o
+	$(CXX) $^ $(LDFLAGS) -o $@
+
+omr_server_async: omr.pb.o omr.grpc.pb.o omr_server_async.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PRECIOUS: %.grpc.pb.cc
@@ -44,7 +50,7 @@ omr_server: omr.pb.o omr.grpc.pb.o omr_server.o
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h omr_client omr_server
+	rm -f *.o *.pb.cc *.pb.h omr_client omr_server omr_client_async omr_server_async
 
 # The following is to test your system and ensure a smoother experience.
 # They are by no means necessary to actually compile a grpc-enabled software.
