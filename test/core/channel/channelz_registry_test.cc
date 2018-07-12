@@ -54,6 +54,7 @@ TEST(ChannelzRegistryTest, UuidStartsAboveZeroTest) {
 TEST(ChannelzRegistryTest, UuidsAreIncreasing) {
   int object_to_register;
   std::vector<intptr_t> uuids;
+  uuids.reserve(10);
   for (int i = 0; i < 10; ++i) {
     // reregister the same object. It's ok since we are just testing uuids
     uuids.push_back(ChannelzRegistry::Register(&object_to_register));
@@ -79,6 +80,15 @@ TEST(ChannelzRegistryTest, MultipleTypeTest) {
   std::string* retrieved_str = ChannelzRegistry::Get<std::string>(str_uuid);
   EXPECT_EQ(&int_to_register, retrieved_int);
   EXPECT_EQ(&str_to_register, retrieved_str);
+}
+
+TEST(ChannelzRegistryTest, RegisterManyItems) {
+  int object_to_register = 42;
+  for (int i = 0; i < 100; i++) {
+    intptr_t uuid = ChannelzRegistry::Register(&object_to_register);
+    int* retrieved = ChannelzRegistry::Get<int>(uuid);
+    EXPECT_EQ(&object_to_register, retrieved);
+  }
 }
 
 namespace {

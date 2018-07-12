@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'grpc'
+require 'spec_helper'
 
 Thread.abort_on_exception = true
 
@@ -588,6 +588,18 @@ describe 'ClientStub' do  # rubocop:disable Metrics/BlockLength
           @op, @server_initial_md, @server_trailing_md) do |responses|
           responses.each { |r| p r }
         end
+      end
+
+      it 'raises GRPC::Cancelled after the call has been cancelled' do
+        server_port = create_test_server
+        host = "localhost:#{server_port}"
+        th = run_server_streamer(@sent_msg, @replys, @pass)
+        stub = GRPC::ClientStub.new(host, :this_channel_is_insecure)
+        resp = get_responses(stub, run_start_call_first: false)
+        expect(resp.next).to eq('reply_1')
+        @op.cancel
+        expect { resp.next }.to raise_error(GRPC::Cancelled)
+        th.join
       end
     end
   end

@@ -85,6 +85,7 @@ static NSMutableDictionary *kHostCache;
       _secure = YES;
       kHostCache[address] = self;
       _compressAlgorithm = GRPC_COMPRESS_NONE;
+      _retryEnabled = YES;
     }
 #ifndef GRPC_CFSTREAM
     [GRPCConnectivityMonitor registerObserver:self selector:@selector(connectivityChange:)];
@@ -183,14 +184,14 @@ static NSMutableDictionary *kHostCache;
 
   grpc_channel_credentials *creds;
   if (pemPrivateKey == nil && pemCertChain == nil) {
-    creds = grpc_ssl_credentials_create(rootsASCII.bytes, NULL, NULL);
+    creds = grpc_ssl_credentials_create(rootsASCII.bytes, NULL, NULL, NULL);
   } else {
     grpc_ssl_pem_key_cert_pair key_cert_pair;
     NSData *privateKeyASCII = [self nullTerminatedDataWithString:pemPrivateKey];
     NSData *certChainASCII = [self nullTerminatedDataWithString:pemCertChain];
     key_cert_pair.private_key = privateKeyASCII.bytes;
     key_cert_pair.cert_chain = certChainASCII.bytes;
-    creds = grpc_ssl_credentials_create(rootsASCII.bytes, &key_cert_pair, NULL);
+    creds = grpc_ssl_credentials_create(rootsASCII.bytes, &key_cert_pair, NULL, NULL);
   }
 
   @synchronized(self) {
@@ -238,6 +239,20 @@ static NSMutableDictionary *kHostCache;
 
   if (useCronet) {
     args[@GRPC_ARG_DISABLE_CLIENT_AUTHORITY_FILTER] = [NSNumber numberWithInt:1];
+  }
+
+  if (_retryEnabled == NO) {
+    args[@GRPC_ARG_ENABLE_RETRIES] = [NSNumber numberWithInt:0];
+  }
+
+  if (_minConnectTimeout > 0) {
+    args[@GRPC_ARG_MIN_RECONNECT_BACKOFF_MS] = [NSNumber numberWithInt:_minConnectTimeout];
+  }
+  if (_initialConnectBackoff > 0) {
+    args[@GRPC_ARG_INITIAL_RECONNECT_BACKOFF_MS] = [NSNumber numberWithInt:_initialConnectBackoff];
+  }
+  if (_maxConnectBackoff > 0) {
+    args[@GRPC_ARG_MAX_RECONNECT_BACKOFF_MS] = [NSNumber numberWithInt:_maxConnectBackoff];
   }
 
   return args;
